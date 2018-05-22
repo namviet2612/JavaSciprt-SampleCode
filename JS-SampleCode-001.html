@@ -20,7 +20,7 @@
 
 <body>
 
-    <canvas id="myCanvas" width="480" height="320"></canvas>
+    <canvas id="myCanvas" width="960" height="640"></canvas>
 
     <script>
         // JavaScript code goes here
@@ -28,8 +28,8 @@
         var ctx = canvas.getContext("2d");
         const USE_MOUSE_CONTROL = false;
 
-        var x = canvas.width / 2;
-        var y = canvas.height - 30;
+        var x = 0;
+        var y = 0;
         var dx = 2;
         var dy = 2;
         var ballRadius = 5;
@@ -56,6 +56,7 @@
 
         var leftPressed = false;
         var rightPressed = false;
+        var spacePressed = false;
 
         function keyDownHandler(e) {
             if (e.keyCode == 39) {
@@ -64,6 +65,10 @@
 
             else if (e.keyCode == 37) {
                 leftPressed = true;
+            }
+
+            else if (e.keyCode == 32) {
+                spacePressed = true;
             }
         }
 
@@ -97,8 +102,8 @@
             ctx.fillText("Score: " + score, 8, 20);
         }
 
-        var brickRowCount = 3;
-        var brickColumnCount = 5;
+        var brickRowCount = 6;
+        var brickColumnCount = 11;
         var brickWidth = 75;
         var brickHeight = 20;
         var brickPadding = 10;
@@ -109,7 +114,11 @@
         for (var c = 0; c < brickColumnCount; c++) {
             bricks[c] = [];
             for (var r = 0; r < brickRowCount; r++) {
-                bricks[c][r] = { x: 0, y: 0, status: 1 };
+                if ((c + r) % 2 == 0) {
+                    bricks[c][r] = { x: 0, y: 0, status: 1 };
+                } else {
+                    bricks[c][r] = { x: 0, y: 0, status: 0 };
+                }
             }
         }
 
@@ -150,7 +159,10 @@
             }
         }
 
-
+        function initial() {
+            x = paddleX + paddleWidth / 2;
+            y = canvas.height - paddleHeight - ballRadius;
+        }
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -159,20 +171,6 @@
             drawPaddle();
             drawScore();
             collisionDetection();
-            if (x > canvas.width - ballRadius || x < ballRadius) {
-                dx = -dx;
-            }
-
-            if (y < ballRadius) {
-                dy = -dy;
-            } else if (y + ballRadius > canvas.height - paddleHeight && x > paddleX && x < paddleX + paddleWidth) {
-                y = canvas.height - paddleHeight - ballRadius;
-                dy = -dy;
-            } else if (y + ballRadius > canvas.height) {
-                alert("GAME OVER");
-                document.location.reload();
-            }
-
             if (rightPressed && paddleX < canvas.width - paddleWidth) {
                 paddleX += 7;
             }
@@ -180,9 +178,26 @@
             if (leftPressed && paddleX > 0) {
                 paddleX -= 7;
             }
+            
+            if (spacePressed == false) {
+                initial();
+            } else {
+                if (x > canvas.width - ballRadius || x < ballRadius) {
+                    dx = -dx;
+                }
 
-            x += dx;
-            y += dy;
+                if (y < ballRadius) {
+                    dy = -dy;
+                } else if (y + ballRadius > canvas.height - paddleHeight && x > paddleX && x < paddleX + paddleWidth) {
+                    y = canvas.height - paddleHeight - ballRadius;
+                    dy = -dy;
+                } else if (y + ballRadius > canvas.height) {
+                    alert("GAME OVER");
+                    document.location.reload();
+                }
+                x += dx;
+                y += dy;
+            }
             requestAnimationFrame(draw);
         }
 
