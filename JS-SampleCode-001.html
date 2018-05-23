@@ -20,7 +20,7 @@
 
 <body>
 
-    <canvas id="myCanvas" width="960" height="640"></canvas>
+    <canvas id="myCanvas" width="480" height="320"></canvas>
 
     <script>
         // JavaScript code goes here
@@ -102,8 +102,15 @@
             ctx.fillText("Score: " + score, 8, 20);
         }
 
-        var brickRowCount = 6;
-        var brickColumnCount = 11;
+        var level = (document.cookie == "") ? 1 : parseInt(document.cookie);
+        function drawLevel() {
+            ctx.font = "16px Arial";
+            ctx.fillStyle = "0095DD";
+            ctx.fillText("Level: " + level, 100, 20);
+        }
+
+        var brickRowCount = 3;
+        var brickColumnCount = 5;
         var brickWidth = 75;
         var brickHeight = 20;
         var brickPadding = 10;
@@ -114,10 +121,32 @@
         for (var c = 0; c < brickColumnCount; c++) {
             bricks[c] = [];
             for (var r = 0; r < brickRowCount; r++) {
-                if ((c + r) % 2 == 0) {
+                if (level == 5) {
                     bricks[c][r] = { x: 0, y: 0, status: 1 };
-                } else {
-                    bricks[c][r] = { x: 0, y: 0, status: 0 };
+                } else if (level == 2) {
+                    if ((c + r) % 2 == 0) {
+                        bricks[c][r] = { x: 0, y: 0, status: 1 };
+                    } else {
+                        bricks[c][r] = { x: 0, y: 0, status: 0 };
+                    }
+                } else if (level == 3) {
+                    if (c % 2 == 0) {
+                        bricks[c][r] = { x: 0, y: 0, status: 1 };
+                    } else {
+                        bricks[c][r] = { x: 0, y: 0, status: 0 };
+                    }
+                } else if (level == 4) {
+                    if (r % 2 == 0) {
+                        bricks[c][r] = { x: 0, y: 0, status: 1 };
+                    } else {
+                        bricks[c][r] = { x: 0, y: 0, status: 0 };
+                    }
+                } else if (level == 1) {
+                    if (c % 2 == 0 && r % 2 == 0) {
+                        bricks[c][r] = { x: 0, y: 0, status: 1 };
+                    } else {
+                        bricks[c][r] = { x: 0, y: 0, status: 0 };
+                    }
                 }
             }
         }
@@ -141,6 +170,7 @@
         }
 
         function collisionDetection() {
+            var win = 0;
             for (var c = 0; c < brickColumnCount; c++) {
                 for (var r = 0; r < brickRowCount; r++) {
                     var b = bricks[c][r];
@@ -149,13 +179,19 @@
                             dy = - dy;
                             b.status = 0;
                             score++;
-                            if (score == brickColumnCount * brickRowCount) {
-                                alert("YOU WON, CONGRATULATIONS!");
-                                document.location.reload();
-                            }
                         }
                     }
+                    win = win | b.status;
                 }
+            }
+            if (win == 0) {
+                alert("YOU WON, CONGRATULATIONS!");
+                level++;
+                if (level == 6) {
+                    level = 1;
+                }
+                document.cookie = level;
+                document.location.reload();
             }
         }
 
@@ -170,6 +206,7 @@
             drawBall();
             drawPaddle();
             drawScore();
+            drawLevel();
             collisionDetection();
             if (rightPressed && paddleX < canvas.width - paddleWidth) {
                 paddleX += 7;
@@ -178,7 +215,7 @@
             if (leftPressed && paddleX > 0) {
                 paddleX -= 7;
             }
-            
+
             if (spacePressed == false) {
                 initial();
             } else {
